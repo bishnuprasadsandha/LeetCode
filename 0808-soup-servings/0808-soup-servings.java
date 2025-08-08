@@ -1,26 +1,30 @@
 class Solution {
     public double soupServings(int n) {
-        if (n >= 5000) return 1.0;
+        if (n >= 5000) return 1.0; // Optimization for large values
 
-        int N = (n + 24) / 25; 
-        Double[][] memo = new Double[N + 1][N + 1];
+        n = (n + 24) / 25; // Convert ml to units of 25ml
 
-        return helper(N, N, memo);
-    }
+        double[][] dp = new double[n + 1][n + 1];
 
-    private double helper(int a, int b, Double[][] memo) {
-        if (a <= 0 && b <= 0) return 0.5;
-        if (a <= 0) return 1.0;
-        if (b <= 0) return 0.0;
-        if (memo[a][b] != null) return memo[a][b];
+        for (int i = 0; i <= n; i++) {
+            for (int j = 0; j <= n; j++) {
+                if (i == 0 && j == 0) {
+                    dp[i][j] = 0.5;
+                } else if (i == 0) {
+                    dp[i][j] = 1.0;
+                } else if (j == 0) {
+                    dp[i][j] = 0.0;
+                } else {
+                    dp[i][j] = 0.25 * (
+                        dp[Math.max(0, i - 4)][j] +
+                        dp[Math.max(0, i - 3)][Math.max(0, j - 1)] +
+                        dp[Math.max(0, i - 2)][Math.max(0, j - 2)] +
+                        dp[Math.max(0, i - 1)][Math.max(0, j - 3)]
+                    );
+                }
+            }
+        }
 
-        memo[a][b] = 0.25 * (
-            helper(a - 4, b, memo) +
-            helper(a - 3, b - 1, memo) +
-            helper(a - 2, b - 2, memo) +
-            helper(a - 1, b - 3, memo)
-        );
-
-        return memo[a][b];
+        return dp[n][n];
     }
 }
